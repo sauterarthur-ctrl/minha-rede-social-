@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ConectaMe &mdash; Rede Social</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary:   #4f46e5;
+      --primary-d: #3730a3;
+      --accent:    #ec4899;
+      --bg:        #f1f5f9;
+      --card:      #ffffff;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --border:    #e2e8f0;
+      --radius:    12px;
+      --shadow:    0 2px 12px rgba(0,0,0,.08);
+      --nav-h:     60px;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--nav-h);
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: var(--shadow);
+    }
+    .nav-brand {
+      font-size: 1.4rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .nav-search {
+      flex: 1; max-width: 340px; margin: 0 24px;
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 16px;
+    }
+    .nav-search input {
+      border: none; background: transparent; outline: none;
+      font-size: .9rem; width: 100%; color: var(--text);
+    }
+    .nav-search svg { color: var(--muted); flex-shrink: 0; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .9rem; cursor: pointer;
+    }
+    .btn-notif {
+      position: relative; background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 6px;
+    }
+    .notif-badge {
+      position: absolute; top: 2px; right: 2px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); border: 2px solid var(--card);
+    }
+
+    /* ===== LAYOUT ===== */
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: calc(var(--nav-h) + 24px) 24px 40px;
+    }
+    @media (max-width: 1024px) {
+      .layout { grid-template-columns: 220px 1fr; }
+      .sidebar-right { display: none; }
+    }
+    @media (max-width: 680px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar-left { display: none; }
+    }
+
+    /* ===== SIDEBAR LEFT ===== */
+    .sidebar-left { position: sticky; top: calc(var(--nav-h) + 24px); height: fit-content; }
+    .profile-card {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px;
+    }
+    .profile-cover {
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+    .profile-info { padding: 0 16px 16px; text-align: center; }
+    .profile-pic {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 4px solid var(--card);
+      background: linear-gradient(135deg, #818cf8, var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.8rem; font-weight: 700;
+      margin: -36px auto 8px;
+    }
+    .profile-name { font-weight: 700; font-size: 1rem; }
+    .profile-handle { color: var(--muted); font-size: .82rem; margin-bottom: 12px; }
+    .profile-stats {
+      display: flex; justify-content: space-around;
+      border-top: 1px solid var(--border); padding-top: 12px;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-weight: 700; font-size: 1rem; }
+    .stat-label { font-size: .75rem; color: var(--muted); }
+
+    .side-menu { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 0; }
+    .side-menu a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; text-decoration: none; color: var(--text);
+      font-size: .9rem; border-radius: 8px; margin: 2px 8px;
+      transition: background .15s;
+    }
+    .side-menu a:hover, .side-menu a.active { background: #ede9fe; color: var(--primary); }
+    .side-menu a svg { width: 18px; height: 18px; }
+
+    /* ===== FEED ===== */
+    .feed { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Composer */
+    .composer {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 16px;
+    }
+    .composer-top { display: flex; gap: 12px; align-items: flex-start; }
+    .composer-avatar {
+      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700;
+    }
+    .composer textarea {
+      flex: 1; border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; font-size: .95rem; font-family: inherit;
+      resize: none; outline: none; color: var(--text);
+      transition: border-color .2s;
+      min-height: 80px;
+    }
+    .composer textarea:focus { border-color: var(--primary); }
+    .composer-actions {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+    }
+    .composer-tools { display: flex; gap: 8px; }
+    .tool-btn {
+      background: none; border: none; cursor: pointer; color: var(--muted);
+      padding: 6px; border-radius: 8px; transition: background .15s, color .15s;
+    }
+    .tool-btn:hover { background: var(--bg); color: var(--primary); }
+    .btn-post {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 999px; padding: 8px 22px; font-size: .9rem;
+      font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .btn-post:hover { background: var(--primary-d); }
+
+    /* Post Card */
+    .post {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 16px;
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .post-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 1rem; flex-shrink: 0;
+    }
+    .post-meta { flex: 1; }
+    .post-author { font-weight: 700; font-size: .95rem; }
+    .post-time { font-size: .78rem; color: var(--muted); }
+    .post-menu-btn {
+      background: none; border: none; cursor: pointer; color: var(--muted);
+      padding: 4px; border-radius: 6px;
+    }
+    .post-menu-btn:hover { background: var(--bg); }
+    .post-body { font-size: .95rem; line-height: 1.6; margin-bottom: 12px; }
+    .post-image {
+      width: 100%; border-radius: 10px; margin-bottom: 12px;
+      object-fit: cover; max-height: 320px;
+    }
+    .post-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .tag {
+      background: #ede9fe; color: var(--primary);
+      font-size: .78rem; font-weight: 600;
+      padding: 2px 10px; border-radius: 999px;
+    }
+    .post-stats {
+      display: flex; gap: 16px; font-size: .82rem; color: var(--muted);
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .post-actions { display: flex; gap: 4px; }
+    .action-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      gap: 6px; background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: .85rem; padding: 8px;
+      border-radius: 8px; transition: background .15s, color .15s;
+    }
+    .action-btn:hover { background: var(--bg); color: var(--primary); }
+    .action-btn.liked { color: var(--accent); }
+    .action-btn.liked svg { fill: var(--accent); }
+
+    /* Comments */
+    .comments-section { margin-top: 12px; display: none; }
+    .comments-section.open { display: block; }
+    .comment-input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .comment-input-row input {
+      flex: 1; border: 1px solid var(--border); border-radius: 999px;
+      padding: 8px 14px; font-size: .88rem; outline: none; color: var(--text);
+    }
+    .comment-input-row input:focus { border-color: var(--primary); }
+    .btn-comment-send {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 999px; padding: 8px 16px; font-size: .85rem;
+      font-weight: 600; cursor: pointer;
+    }
+    .comment {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    .comment-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: .8rem; font-weight: 700;
+    }
+    .comment-bubble {
+      background: var(--bg); border-radius: 12px; padding: 8px 12px;
+      font-size: .88rem; flex: 1;
+    }
+    .comment-author { font-weight: 700; font-size: .82rem; margin-bottom: 2px; }
+
+    /* ===== SIDEBAR RIGHT ===== */
+    .sidebar-right { position: sticky; top: calc(var(--nav-h) + 24px); height: fit-content; display: flex; flex-direction: column; gap: 16px; }
+    .widget { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+    .widget-title { font-weight: 700; font-size: .95rem; margin-bottom: 14px; }
+    .trending-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .trending-item:last-child { border-bottom: none; }
+    .trending-rank { font-size: .75rem; color: var(--muted); width: 16px; text-align: center; }
+    .trending-info { flex: 1; }
+    .trending-tag { font-weight: 600; font-size: .88rem; color: var(--primary); }
+    .trending-count { font-size: .75rem; color: var(--muted); }
+
+    .suggestion {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .suggestion:last-child { border-bottom: none; }
+    .sug-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .9rem;
+    }
+    .sug-info { flex: 1; }
+    .sug-name { font-weight: 600; font-size: .88rem; }
+    .sug-mutual { font-size: .75rem; color: var(--muted); }
+    .btn-follow {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 999px; padding: 5px 14px; font-size: .8rem;
+      font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .btn-follow:hover { background: var(--primary-d); }
+    .btn-follow.following { background: var(--bg); color: var(--primary); border: 1px solid var(--primary); }
+
+    /* ===== STORIES ===== */
+    .stories-row {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 16px;
+      display: flex; gap: 12px; overflow-x: auto;
+    }
+    .stories-row::-webkit-scrollbar { height: 4px; }
+    .stories-row::-webkit-scrollbar-track { background: var(--bg); }
+    .stories-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .story {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .story-ring {
+      width: 58px; height: 58px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      padding: 3px; transition: transform .2s;
+    }
+    .story-ring:hover { transform: scale(1.08); }
+    .story-inner {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: var(--card); display: flex; align-items: center;
+      justify-content: center; font-size: 1.4rem; border: 2px solid var(--card);
+    }
+    .story-label { font-size: .72rem; color: var(--muted); text-align: center; max-width: 64px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .story-add .story-ring { background: var(--bg); border: 2px dashed var(--border); }
+    .story-add .story-inner { font-size: 1.6rem; color: var(--primary); }
+
+    /* ===== MODAL (Story viewer) ===== */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.7); align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .story-modal {
+      background: linear-gradient(160deg, #1e1b4b, #312e81);
+      border-radius: 16px; width: 340px; padding: 24px;
+      color: #fff; text-align: center; position: relative;
+    }
+    .story-modal-emoji { font-size: 4rem; margin-bottom: 12px; }
+    .story-modal-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; }
+    .story-modal-text { font-size: .9rem; opacity: .8; line-height: 1.5; }
+    .story-modal-close {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(255,255,255,.2); border: none; color: #fff;
+      border-radius: 50%; width: 30px; height: 30px; cursor: pointer;
+      font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+      background: #1e293b; color: #fff; border-radius: 999px;
+      padding: 10px 22px; font-size: .88rem; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,.25);
+      transition: transform .3s ease; z-index: 300; pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <span class="nav-brand">ConectaMe</span>
+  <div class="nav-search">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" placeholder="Buscar pessoas, posts..." id="searchInput" />
+  </div>
+  <div class="nav-actions">
+    <button class="btn-notif" onclick="showToast('Você tem 3 novas notificações!')">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-badge"></span>
+    </button>
+    <div class="nav-avatar" onclick="showToast('Perfil de Arthur Sauter')">AS</div>
+  </div>
+</nav>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="storyModal" onclick="closeStory(event)">
+  <div class="story-modal">
+    <button class="story-modal-close" onclick="closeStoryBtn()">✕</button>
+    <div class="story-modal-emoji" id="storyEmoji"></div>
+    <div class="story-modal-name" id="storyName"></div>
+    <div class="story-modal-text" id="storyText"></div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast"></div>
+
+<!-- ===== LAYOUT ===== -->
+<div class="layout">
+
+  <!-- SIDEBAR LEFT -->
+  <aside class="sidebar-left">
+    <div class="profile-card">
+      <div class="profile-cover"></div>
+      <div class="profile-info">
+        <div class="profile-pic">AS</div>
+        <div class="profile-name">Arthur Sauter</div>
+        <div class="profile-handle">@arthursauter</div>
+        <div class="profile-stats">
+          <div class="stat"><div class="stat-num" id="followersCount">248</div><div class="stat-label">Seguidores</div></div>
+          <div class="stat"><div class="stat-num" id="followingCount">131</div><div class="stat-label">Seguindo</div></div>
+          <div class="stat"><div class="stat-num" id="postsCount">0</div><div class="stat-label">Posts</div></div>
+        </div>
+      </div>
+    </div>
+    <nav class="side-menu">
+      <a href="#" class="active">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Início
+      </a>
+      <a href="#" onclick="showToast('Seção Explorar em breve!')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Explorar
+      </a>
+      <a href="#" onclick="showToast('Mensagens em breve!')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Mensagens
+      </a>
+      <a href="#" onclick="showToast('Seção Salvos em breve!')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        Salvos
+      </a>
+      <a href="#" onclick="showToast('Configurações em breve!')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configurações
+      </a>
+    </nav>
+  </aside>
+
+  <!-- FEED -->
+  <main class="feed" id="feed">
+
+    <!-- Stories -->
+    <div class="stories-row" id="storiesRow">
+      <div class="story story-add">
+        <div class="story-ring"><div class="story-inner">+</div></div>
+        <span class="story-label">Seu story</span>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <div class="composer">
+      <div class="composer-top">
+        <div class="composer-avatar">AS</div>
+        <textarea id="postInput" placeholder="No que você está pensando, Arthur?"></textarea>
+      </div>
+      <div class="composer-actions">
+        <div class="composer-tools">
+          <button class="tool-btn" title="Foto" onclick="showToast('Upload de foto em breve!')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
+          <button class="tool-btn" title="Vídeo" onclick="showToast('Upload de vídeo em breve!')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </button>
+          <button class="tool-btn" title="Emoji" onclick="showToast('Seletor de emoji em breve!')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </button>
+        </div>
+        <button class="btn-post" onclick="publishPost()">Publicar</button>
+      </div>
+    </div>
+
+    <!-- Posts serão inseridos aqui via JS -->
+  </main>
+
+  <!-- SIDEBAR RIGHT -->
+  <aside class="sidebar-right">
+    <div class="widget">
+      <div class="widget-title">Trending</div>
+      <div id="trendingList"></div>
+    </div>
+    <div class="widget">
+      <div class="widget-title">Sugestões para você</div>
+      <div id="suggestionsList"></div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+  /* ============================================================
+     DADOS INICIAIS
+  ============================================================ */
+  const USERS = [
+    { id: 1, name: 'Mariana Costa',   handle: '@marianacosta',   initials: 'MC', color: '#8b5cf6' },
+    { id: 2, name: 'Rafael Lima',     handle: '@rafaellima',     initials: 'RL', color: '#06b6d4' },
+    { id: 3, name: 'Juliana Ferraz',  handle: '@julianaferraz',  initials: 'JF', color: '#f59e0b' },
+    { id: 4, name: 'Bruno Mendes',    handle: '@brunomendes',    initials: 'BM', color: '#10b981' },
+    { id: 5, name: 'Camila Rocha',    handle: '@camilarocha',    initials: 'CR', color: '#ec4899' },
+    { id: 6, name: 'Diego Alves',     handle: '@diegoalves',     initials: 'DA', color: '#f97316' },
+  ];
+
+  const SEED_POSTS = [
+    {
+      userId: 1, time: '2 min atrás',
+      body: 'Acabei de terminar meu projeto de design! Foram semanas de trabalho intenso, mas o resultado ficou incrível. Gratidão a todos que me apoiaram nessa jornada. 🎨',
+      tags: ['Design', 'UX', 'Criatividade'],
+      likes: 42, comments: 7, shares: 5,
+    },
+    {
+      userId: 2, time: '15 min atrás',
+      body: 'Dica do dia: use o método Pomodoro para aumentar sua produtividade. 25 minutos de foco total + 5 de pausa. Tem funcionado muito bem para mim nos últimos meses!',
+      tags: ['Produtividade', 'Dicas'],
+      likes: 88, comments: 14, shares: 22,
+    },
+    {
+      userId: 3, time: '1 hora atrás',
+      body: 'Viagem incrível para Florianópolis! As praias do sul do Brasil são simplesmente de outro mundo. Já estou planejando a próxima visita. Alguém tem dicas de lugares para conhecer?',
+      tags: ['Viagem', 'Floripa', 'Turismo'],
+      likes: 134, comments: 31, shares: 18,
+    },
+    {
+      userId: 4, time: '3 horas atrás',
+      body: 'Acabei de publicar um artigo sobre arquitetura de microsserviços com Node.js e Docker. Link na bio! Feedback é muito bem-vindo. 🚀',
+      tags: ['Dev', 'NodeJS', 'Docker'],
+      likes: 67, comments: 9, shares: 41,
+    },
+  ];
+
+  const STORIES_DATA = [
+    { name: 'Mariana',  emoji: '🎨', text: 'Novo projeto de design finalizado! Confira meu portfólio.' },
+    { name: 'Rafael',   emoji: '💡', text: 'Compartilhando dicas de produtividade hoje!' },
+    { name: 'Juliana',  emoji: '🌊', text: 'De férias em Floripa! A praia está maravilhosa.' },
+    { name: 'Bruno',    emoji: '💻', text: 'Publicando artigo novo sobre microsserviços.' },
+    { name: 'Camila',   emoji: '🎵', text: 'Descobrindo músicas novas para a semana!' },
+    { name: 'Diego',    emoji: '🏋️', text: 'Treino concluído! Consistência é tudo.' },
+  ];
+
+  const TRENDING = [
+    { tag: '#DesenvolvimentoWeb', count: '12.4k posts' },
+    { tag: '#InteligênciaArtificial', count: '9.8k posts' },
+    { tag: '#Produtividade', count: '7.2k posts' },
+    { tag: '#Viagem', count: '5.6k posts' },
+    { tag: '#Design', count: '4.1k posts' },
+  ];
+
+  const SUGGESTIONS = [
+    { name: 'Camila Rocha',  handle: '@camilarocha',  initials: 'CR', color: '#ec4899', mutual: '3 amigos em comum' },
+    { name: 'Diego Alves',   handle: '@diegoalves',   initials: 'DA', color: '#f97316', mutual: '1 amigo em comum' },
+    { name: 'Letícia Nunes', handle: '@leticianunes', initials: 'LN', color: '#14b8a6', mutual: '5 amigos em comum' },
+  ];
+
+  /* ============================================================
+     ESTADO
+  ============================================================ */
+  let posts = [];
+  let postIdCounter = 0;
+  let myPostsCount = 0;
+
+  /* ============================================================
+     UTILITÁRIOS
+  ============================================================ */
+  function getUser(id) { return USERS.find(u => u.id === id); }
+
+  function timeAgo(ts) {
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60) return 'agora mesmo';
+    if (diff < 3600) return `${Math.floor(diff/60)} min atrás`;
+    if (diff < 86400) return `${Math.floor(diff/3600)} h atrás`;
+    return `${Math.floor(diff/86400)} d atrás`;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ============================================================
+     STORIES
+  ============================================================ */
+  function buildStories() {
+    const row = document.getElementById('storiesRow');
+    STORIES_DATA.forEach((s, i) => {
+      const div = document.createElement('div');
+      div.className = 'story';
+      div.innerHTML = `
+        <div class="story-ring" onclick="openStory(${i})">
+          <div class="story-inner">${s.emoji}</div>
+        </div>
+        <span class="story-label">${s.name}</span>`;
+      row.appendChild(div);
+    });
+  }
+
+  function openStory(i) {
+    const s = STORIES_DATA[i];
+    document.getElementById('storyEmoji').textContent = s.emoji;
+    document.getElementById('storyName').textContent = s.name;
+    document.getElementById('storyText').textContent = s.text;
+    document.getElementById('storyModal').classList.add('open');
+  }
+  function closeStory(e) {
+    if (e.target.id === 'storyModal') document.getElementById('storyModal').classList.remove('open');
+  }
+  function closeStoryBtn() { document.getElementById('storyModal').classList.remove('open'); }
+
+  /* ============================================================
+     POSTS
+  ============================================================ */
+  function createPostElement(post) {
+    const user = post.userId === 0
+      ? { name: 'Arthur Sauter', initials: 'AS', color: '#4f46e5' }
+      : getUser(post.userId);
+
+    const el = document.createElement('div');
+    el.className = 'post';
+    el.id = `post-${post.id}`;
+
+    const tagsHtml = (post.tags || []).map(t => `<span class="tag">#${t}</span>`).join('');
+
+    el.innerHTML = `
+      <div class="post-header">
+        <div class="post-avatar" style="background:${user.color}">${user.initials}</div>
+        <div class="post-meta">
+          <div class="post-author">${user.name}</div>
+          <div class="post-time" data-ts="${post.ts}">${post.time}</div>
+        </div>
+        <button class="post-menu-btn" onclick="showToast('Opções do post em breve!')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+          </svg>
+        </button>
+      </div>
+      <div class="post-body">${post.body}</div>
+      ${tagsHtml ? `<div class="post-tags">${tagsHtml}</div>` : ''}
+      <div class="post-stats">
+        <span id="likes-count-${post.id}">${post.likes} curtidas</span>
+        <span id="comments-count-${post.id}">${post.comments} comentários</span>
+        <span>${post.shares} compartilhamentos</span>
+      </div>
+      <div class="post-actions">
+        <button class="action-btn" id="like-btn-${post.id}" onclick="toggleLike(${post.id})">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          Curtir
+        </button>
+        <button class="action-btn" onclick="toggleComments(${post.id})">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Comentar
+        </button>
+        <button class="action-btn" onclick="sharePost(${post.id})">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Compartilhar
+        </button>
+      </div>
+      <div class="comments-section" id="comments-${post.id}">
+        <div class="comment-input-row">
+          <input type="text" placeholder="Escreva um comentário..." id="comment-input-${post.id}" onkeydown="if(event.key==='Enter') addComment(${post.id})" />
+          <button class="btn-comment-send" onclick="addComment(${post.id})">Enviar</button>
+        </div>
+        <div id="comments-list-${post.id}"></div>
+      </div>`;
+
+    return el;
+  }
+
+  function renderSeedPosts() {
+    const feed = document.getElementById('feed');
+    const composer = feed.querySelector('.composer');
+    SEED_POSTS.forEach(p => {
+      const post = { ...p, id: ++postIdCounter, ts: Date.now() - Math.random() * 3600000, liked: false };
+      posts.push(post);
+      const el = createPostElement(post);
+      feed.insertBefore(el, composer.nextSibling);
+    });
+  }
+
+  function publishPost() {
+    const input = document.getElementById('postInput');
+    const text = input.value.trim();
+    if (!text) { showToast('Escreva algo antes de publicar!'); return; }
+
+    const post = {
+      id: ++postIdCounter,
+      userId: 0,
+      body: text,
+      tags: extractTags(text),
+      time: 'agora mesmo',
+      ts: Date.now(),
+      likes: 0, comments: 0, shares: 0,
+      liked: false,
+    };
+    posts.unshift(post);
+    myPostsCount++;
+    document.getElementById('postsCount').textContent = myPostsCount;
+
+    const feed = document.getElementById('feed');
+    const composer = feed.querySelector('.composer');
+    const el = createPostElement(post);
+    feed.insertBefore(el, composer.nextSibling);
+
+    input.value = '';
+    showToast('Post publicado com sucesso!');
+  }
+
+  function extractTags(text) {
+    const matches = text.match(/#\w+/g);
+    return matches ? matches.map(t => t.slice(1)) : [];
+  }
+
+  /* ============================================================
+     INTERAÇÕES
+  ============================================================ */
+  function toggleLike(id) {
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+    post.liked = !post.liked;
+    post.likes += post.liked ? 1 : -1;
+    document.getElementById(`likes-count-${id}`).textContent = `${post.likes} curtidas`;
+    const btn = document.getElementById(`like-btn-${id}`);
+    btn.classList.toggle('liked', post.liked);
+    if (post.liked) showToast('Você curtiu este post!');
+  }
+
+  function toggleComments(id) {
+    const section = document.getElementById(`comments-${id}`);
+    section.classList.toggle('open');
+    if (section.classList.contains('open')) {
+      document.getElementById(`comment-input-${id}`).focus();
+    }
+  }
+
+  function addComment(id) {
+    const input = document.getElementById(`comment-input-${id}`);
+    const text = input.value.trim();
+    if (!text) return;
+
+    const post = posts.find(p => p.id === id);
+    post.comments++;
+    document.getElementById(`comments-count-${id}`).textContent = `${post.comments} comentários`;
+
+    const list = document.getElementById(`comments-list-${id}`);
+    const div = document.createElement('div');
+    div.className = 'comment';
+    div.innerHTML = `
+      <div class="comment-avatar" style="background:#4f46e5">AS</div>
+      <div class="comment-bubble">
+        <div class="comment-author">Arthur Sauter</div>
+        ${text}
+      </div>`;
+    list.appendChild(div);
+    input.value = '';
+    showToast('Comentário adicionado!');
+  }
+
+  function sharePost(id) {
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+    post.shares++;
+    showToast('Post compartilhado!');
+  }
+
+  /* ============================================================
+     TRENDING
+  ============================================================ */
+  function buildTrending() {
+    const list = document.getElementById('trendingList');
+    TRENDING.forEach((t, i) => {
+      const div = document.createElement('div');
+      div.className = 'trending-item';
+      div.innerHTML = `
+        <span class="trending-rank">${i + 1}</span>
+        <div class="trending-info">
+          <div class="trending-tag">${t.tag}</div>
+          <div class="trending-count">${t.count}</div>
+        </div>`;
+      list.appendChild(div);
+    });
+  }
+
+  /* ============================================================
+     SUGESTÕES
+  ============================================================ */
+  function buildSuggestions() {
+    const list = document.getElementById('suggestionsList');
+    SUGGESTIONS.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'suggestion';
+      div.innerHTML = `
+        <div class="sug-avatar" style="background:${s.color}">${s.initials}</div>
+        <div class="sug-info">
+          <div class="sug-name">${s.name}</div>
+          <div class="sug-mutual">${s.mutual}</div>
+        </div>
+        <button class="btn-follow" onclick="followUser(this, '${s.name}')">Seguir</button>`;
+      list.appendChild(div);
+    });
+  }
+
+  function followUser(btn, name) {
+    const isFollowing = btn.classList.toggle('following');
+    btn.textContent = isFollowing ? 'Seguindo' : 'Seguir';
+    const count = document.getElementById('followingCount');
+    count.textContent = parseInt(count.textContent) + (isFollowing ? 1 : -1);
+    showToast(isFollowing ? `Você está seguindo ${name}!` : `Você deixou de seguir ${name}.`);
+  }
+
+  /* ============================================================
+     BUSCA
+  ============================================================ */
+  document.getElementById('searchInput').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.post').forEach(el => {
+      const text = el.querySelector('.post-body').textContent.toLowerCase();
+      const author = el.querySelector('.post-author').textContent.toLowerCase();
+      el.style.display = (text.includes(q) || author.includes(q) || q === '') ? '' : 'none';
+    });
+  });
+
+  /* ============================================================
+     ATUALIZAR TIMESTAMPS
+  ============================================================ */
+  setInterval(() => {
+    document.querySelectorAll('.post-time[data-ts]').forEach(el => {
+      const ts = parseInt(el.dataset.ts);
+      if (ts) el.textContent = timeAgo(ts);
+    });
+  }, 30000);
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  buildStories();
+  buildTrending();
+  buildSuggestions();
+  renderSeedPosts();
+</script>
+</body>
+</html>
