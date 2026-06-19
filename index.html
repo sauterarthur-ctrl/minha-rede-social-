@@ -806,6 +806,95 @@
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
+    /* ===== SETTINGS PAGE ===== */
+    .settings-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 768px) {
+      .settings-container { grid-template-columns: 1fr; }
+      .settings-menu { display: none; }
+      .settings-menu.open { display: block; }
+    }
+    .settings-menu {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      padding: 0; overflow: hidden; height: fit-content;
+    }
+    .settings-menu-item {
+      padding: 14px 18px; cursor: pointer; transition: all .2s;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted); font-size: .95rem; font-weight: 500;
+      display: flex; align-items: center; gap: 12px;
+      background: none; border: none; width: 100%; text-align: left;
+    }
+    .settings-menu-item:hover, .settings-menu-item.active {
+      background: rgba(99,102,241,.15);
+      color: var(--primary);
+      border-left: 3px solid var(--primary);
+      padding-left: 15px;
+    }
+    .settings-menu-item:last-child { border-bottom: none; }
+    .settings-menu-item svg { width: 20px; height: 20px; }
+    .settings-content {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      padding: 28px;
+    }
+    .settings-section { display: none; }
+    .settings-section.active { display: block; }
+    .settings-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
+    .settings-group {
+      margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border);
+    }
+    .settings-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .settings-group-title { font-weight: 600; font-size: 1rem; margin-bottom: 16px; color: var(--text); }
+    .settings-group-desc { font-size: .85rem; color: var(--text-muted); margin-bottom: 12px; }
+    .settings-option {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; margin-bottom: 12px;
+    }
+    .settings-option:last-child { margin-bottom: 0; }
+    .settings-option-label { flex: 1; }
+    .settings-option-title { font-weight: 500; font-size: .95rem; margin-bottom: 2px; }
+    .settings-option-desc { font-size: .8rem; color: var(--text-muted); }
+    .toggle-switch {
+      position: relative; width: 50px; height: 28px;
+      background: var(--border); border-radius: 999px;
+      cursor: pointer; transition: all .3s;
+      border: none; padding: 0;
+    }
+    .toggle-switch.active { background: var(--primary); }
+    .toggle-switch::after {
+      content: ''; position: absolute;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: #fff; top: 2px; left: 2px;
+      transition: all .3s;
+    }
+    .toggle-switch.active::after { left: 24px; }
+    .settings-select {
+      padding: 8px 12px; border: 1px solid var(--border);
+      border-radius: 8px; background: rgba(99,102,241,.05);
+      color: var(--text); font-size: .9rem; cursor: pointer;
+      transition: all .2s;
+    }
+    .settings-select:hover, .settings-select:focus {
+      border-color: var(--primary);
+      background: rgba(99,102,241,.1);
+      outline: none;
+    }
+    .settings-button {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 8px; padding: 10px 20px; font-size: .9rem;
+      font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .settings-button:hover { background: var(--primary-d); transform: translateY(-2px); }
+    .settings-button.danger {
+      background: #ef4444; color: #fff;
+    }
+    .settings-button.danger:hover { background: #dc2626; }
+
     /* ===== APP CONTAINER ===== */
     .app-container { display: none; }
     .app-container.logged-in { display: block; }
@@ -906,7 +995,7 @@
               Mensagens
             </button>
             <div class="profile-dropdown-divider"></div>
-            <button class="profile-dropdown-item" onclick="showToast('Configurações em breve!'); closeProfileMenu();">
+            <button class="profile-dropdown-item" onclick="switchSection('settings'); closeProfileMenu();">
               <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
               Configurações
             </button>
@@ -963,6 +1052,10 @@
         <a onclick="switchSection('messages')">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           Mensagens
+        </a>
+        <a onclick="switchSection('settings')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configurações
         </a>
         <a href="#" onclick="showToast('Seção Explorar em breve!')">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -1068,7 +1161,205 @@
             </div>
           </div>
         </div>
+      <!-- SETTINGS SECTION -->
+      <div class="content-section" id="settingsSection">
+        <div class="settings-container">
+          <div class="settings-menu">
+            <button class="settings-menu-item active" onclick="switchSettingsTab('account')">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Conta
+            </button>
+            <button class="settings-menu-item" onclick="switchSettingsTab('privacy')">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Privacidade
+            </button>
+            <button class="settings-menu-item" onclick="switchSettingsTab('notifications')">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              Notificações
+            </button>
+            <button class="settings-menu-item" onclick="switchSettingsTab('appearance')">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6m0 0v6m0-6h6m0 0h-6m-6 0h6"/></svg>
+              Aparência
+            </button>
+          </div>
+          <div class="settings-content">
+            <!-- Account Settings -->
+            <div class="settings-section active" id="accountSettings">
+              <h2 class="settings-title">Configurações da Conta</h2>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Informações Pessoais</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Nome</div>
+                    <div class="settings-option-desc" id="settingName">Arthur Sauter</div>
+                  </div>
+                  <button class="settings-button" onclick="showToast('Editar nome em breve!')">Editar</button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">E-mail</div>
+                    <div class="settings-option-desc" id="settingEmail">arthur@example.com</div>
+                  </div>
+                  <button class="settings-button" onclick="showToast('Editar e-mail em breve!')">Editar</button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Senha</div>
+                    <div class="settings-option-desc">Altere sua senha regularmente</div>
+                  </div>
+                  <button class="settings-button" onclick="showToast('Alterar senha em breve!')">Alterar</button>
+                </div>
+              </div>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Dados da Conta</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Fazer Download dos Dados</div>
+                    <div class="settings-option-desc">Baixe uma cópia de seus dados</div>
+                  </div>
+                  <button class="settings-button" onclick="showToast('Download iniciado!')">Baixar</button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Deletar Conta</div>
+                    <div class="settings-option-desc">Remova sua conta permanentemente</div>
+                  </div>
+                  <button class="settings-button danger" onclick="showToast('Solicitação de deleção em breve!')">Deletar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Privacy Settings -->
+            <div class="settings-section" id="privacySettings">
+              <h2 class="settings-title">Privacidade e Segurança</h2>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Privacidade do Perfil</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Perfil Público</div>
+                    <div class="settings-option-desc">Qualquer pessoa pode ver seu perfil</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Permitir Mensagens</div>
+                    <div class="settings-option-desc">Receba mensagens de qualquer pessoa</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Mostrar Status Online</div>
+                    <div class="settings-option-desc">Deixe outros saberem quando você está online</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+              </div>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Bloqueios</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Usuários Bloqueados</div>
+                    <div class="settings-option-desc">Gerencie sua lista de bloqueios</div>
+                  </div>
+                  <button class="settings-button" onclick="showToast('Gerenciar bloqueios em breve!')">Gerenciar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="settings-section" id="notificationSettings">
+              <h2 class="settings-title">Notificações</h2>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Notificações por E-mail</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Curtidas</div>
+                    <div class="settings-option-desc">Receba e-mail quando alguém curtir seu post</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Comentários</div>
+                    <div class="settings-option-desc">Receba e-mail quando alguém comentar</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Novos Seguidores</div>
+                    <div class="settings-option-desc">Receba e-mail quando ganhar um novo seguidor</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+              </div>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Notificações no Aplicativo</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Notificações Push</div>
+                    <div class="settings-option-desc">Receba notificações em tempo real</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Sons</div>
+                    <div class="settings-option-desc">Ative sons de notificação</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Appearance Settings -->
+            <div class="settings-section" id="appearanceSettings">
+              <h2 class="settings-title">Aparência</h2>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Tema</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Modo Escuro</div>
+                    <div class="settings-option-desc">Use o tema escuro por padrão</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+              </div>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Tamanho da Fonte</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Tamanho</div>
+                    <div class="settings-option-desc">Ajuste o tamanho do texto</div>
+                  </div>
+                  <select class="settings-select">
+                    <option>Pequeno</option>
+                    <option selected>Normal</option>
+                    <option>Grande</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-group">
+                <h3 class="settings-group-title">Idioma</h3>
+                <div class="settings-option">
+                  <div class="settings-option-label">
+                    <div class="settings-option-title">Idioma da Interface</div>
+                    <div class="settings-option-desc">Escolha o idioma preferido</div>
+                  </div>
+                  <select class="settings-select">
+                    <option selected>Português (Brasil)</option>
+                    <option>English</option>
+                    <option>Español</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
     </main>
 
     <!-- SIDEBAR RIGHT -->
