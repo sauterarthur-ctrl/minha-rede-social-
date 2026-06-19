@@ -962,10 +962,10 @@
 <div class="app-container" id="appContainer">
   <!-- ===== NAVBAR ===== -->
   <nav>
-    <span class="nav-brand" onclick="switchSection('home')">
+    <button class="nav-brand" onclick="returnToLogin()" style="background:none; border:none; cursor:pointer; padding:0;">
       <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
       Oásis
-    </span>
+    </button>
     <div class="nav-search">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" placeholder="Buscar pessoas, posts..." id="searchInput" />
@@ -1250,6 +1250,13 @@
                 </div>
                 <div class="settings-option">
                   <div class="settings-option-label">
+                    <div class="settings-option-title">Permitir Contato de Pessoas</div>
+                    <div class="settings-option-desc">Deixe outras pessoas entrarem em contato com você</div>
+                  </div>
+                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                </div>
+                <div class="settings-option">
+                  <div class="settings-option-label">
                     <div class="settings-option-title">Mostrar Status Online</div>
                     <div class="settings-option-desc">Deixe outros saberem quando você está online</div>
                   </div>
@@ -1318,13 +1325,27 @@
             <div class="settings-section" id="appearanceSettings">
               <h2 class="settings-title">Aparência</h2>
               <div class="settings-group">
-                <h3 class="settings-group-title">Tema</h3>
-                <div class="settings-option">
-                  <div class="settings-option-label">
-                    <div class="settings-option-title">Modo Escuro</div>
-                    <div class="settings-option-desc">Use o tema escuro por padrão</div>
+                <h3 class="settings-group-title">Tema de Cores</h3>
+                <div class="settings-group-desc">Escolha o tema visual que você prefere</div>
+                <div class="theme-selector">
+                  <div class="theme-option dark active" onclick="changeTheme('dark')" title="Escuro">
+                    <span class="theme-label">Escuro</span>
                   </div>
-                  <button class="toggle-switch active" onclick="toggleSetting(this)"></button>
+                  <div class="theme-option light" onclick="changeTheme('light')" title="Claro">
+                    <span class="theme-label">Claro</span>
+                  </div>
+                  <div class="theme-option ocean" onclick="changeTheme('ocean')" title="Oceano">
+                    <span class="theme-label">Oceano</span>
+                  </div>
+                  <div class="theme-option forest" onclick="changeTheme('forest')" title="Floresta">
+                    <span class="theme-label">Floresta</span>
+                  </div>
+                  <div class="theme-option sunset" onclick="changeTheme('sunset')" title="Pôr do Sol">
+                    <span class="theme-label">Pôr do Sol</span>
+                  </div>
+                  <div class="theme-option purple" onclick="changeTheme('purple')" title="Roxo">
+                    <span class="theme-label">Roxo</span>
+                  </div>
                 </div>
               </div>
               <div class="settings-group">
@@ -1545,11 +1566,9 @@
   }
 
   function checkLogin() {
-    const saved = localStorage.getItem('user');
-    if (saved) {
-      currentUser = JSON.parse(saved);
-      loginUser();
-    }
+    // Sempre mostrar tela de login (logout automático)
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('appContainer').classList.remove('logged-in');
   }
 
   /* ============================================================
