@@ -49,7 +49,10 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       letter-spacing: -1px;
       display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+      transition: transform .2s;
     }
+    .nav-brand:hover { transform: scale(1.05); }
     .nav-brand svg { width: 28px; height: 28px; }
     .nav-search {
       flex: 1; max-width: 380px; margin: 0 32px;
@@ -69,6 +72,7 @@
     .nav-search input::placeholder { color: var(--text-muted); }
     .nav-search svg { color: var(--text-muted); flex-shrink: 0; }
     .nav-actions { display: flex; align-items: center; gap: 16px; }
+    .profile-menu-container { position: relative; }
     .nav-avatar {
       width: 40px; height: 40px; border-radius: 50%;
       background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -78,6 +82,46 @@
       box-shadow: 0 0 12px rgba(99,102,241,.3);
     }
     .nav-avatar:hover { transform: scale(1.08); box-shadow: 0 0 16px rgba(99,102,241,.5); }
+    .profile-dropdown {
+      position: absolute; top: 100%; right: 0; margin-top: 12px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      min-width: 280px; display: none; z-index: 101;
+      overflow: hidden;
+    }
+    .profile-dropdown.open { display: block; }
+    .profile-dropdown-header {
+      padding: 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .profile-dropdown-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 1rem;
+      box-shadow: 0 0 12px rgba(99,102,241,.3);
+    }
+    .profile-dropdown-info { flex: 1; }
+    .profile-dropdown-name { font-weight: 700; font-size: .95rem; }
+    .profile-dropdown-handle { font-size: .8rem; color: var(--text-muted); }
+    .profile-dropdown-menu {
+      padding: 8px 0;
+    }
+    .profile-dropdown-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; color: var(--text-muted);
+      cursor: pointer; transition: all .2s;
+      border: none; background: none; width: 100%; text-align: left;
+      font-size: .9rem;
+    }
+    .profile-dropdown-item:hover {
+      background: rgba(99,102,241,.1);
+      color: var(--primary);
+    }
+    .profile-dropdown-item svg { width: 18px; height: 18px; }
+    .profile-dropdown-divider {
+      height: 1px; background: var(--border); margin: 8px 0;
+    }
     .btn-notif {
       position: relative; background: none; border: none; cursor: pointer;
       color: var(--text-muted); padding: 8px; border-radius: 8px;
@@ -155,7 +199,9 @@
       display: flex; align-items: center; gap: 12px;
       padding: 12px 16px; text-decoration: none; color: var(--text-muted);
       font-size: .95rem; border-radius: 10px; margin: 4px 8px;
-      transition: all .2s;
+      transition: all .2s; cursor: pointer;
+      border: none; background: none; width: calc(100% - 16px);
+      text-align: left;
     }
     .side-menu a:hover, .side-menu a.active {
       background: rgba(99,102,241,.15);
@@ -164,6 +210,10 @@
       padding-left: 13px;
     }
     .side-menu a svg { width: 20px; height: 20px; }
+
+    /* ===== CONTENT SECTIONS ===== */
+    .content-section { display: none; }
+    .content-section.active { display: block; }
 
     /* ===== FEED ===== */
     .feed { display: flex; flex-direction: column; gap: 20px; }
@@ -314,44 +364,163 @@
     }
     .comment-author { font-weight: 700; font-size: .85rem; margin-bottom: 2px; }
 
-    /* ===== SIDEBAR RIGHT ===== */
-    .sidebar-right { position: sticky; top: calc(var(--nav-h) + 28px); height: fit-content; display: flex; flex-direction: column; gap: 20px; }
-    .widget { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; border: 1px solid var(--border); transition: all .3s; }
-    .widget:hover { border-color: var(--primary); }
-    .widget-title { font-weight: 700; font-size: .98rem; margin-bottom: 16px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .trending-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 0; border-bottom: 1px solid var(--border);
-      transition: all .2s;
+    /* ===== PROFILE PAGE ===== */
+    .profile-page-header {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border);
+      margin-bottom: 20px;
     }
-    .trending-item:hover { padding-left: 4px; }
-    .trending-item:last-child { border-bottom: none; }
-    .trending-rank { font-size: .8rem; color: var(--primary); width: 20px; text-align: center; font-weight: 700; }
-    .trending-info { flex: 1; }
-    .trending-tag { font-weight: 600; font-size: .9rem; color: var(--primary); }
-    .trending-count { font-size: .78rem; color: var(--text-muted); }
-
-    .suggestion {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 0; border-bottom: 1px solid var(--border);
+    .profile-page-cover {
+      height: 200px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      position: relative;
+      overflow: hidden;
     }
-    .suggestion:last-child { border-bottom: none; }
-    .sug-avatar {
-      width: 42px; height: 42px; border-radius: 50%;
+    .profile-page-cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.1), transparent);
+    }
+    .profile-page-info {
+      padding: 0 28px 28px;
+      display: flex; align-items: flex-end; gap: 20px;
+    }
+    .profile-page-pic {
+      width: 120px; height: 120px; border-radius: 50%;
+      border: 4px solid var(--card);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 700; font-size: .95rem;
-      box-shadow: 0 0 8px rgba(99,102,241,.2);
+      color: #fff; font-size: 3rem; font-weight: 700;
+      margin-top: -60px;
+      box-shadow: 0 0 20px rgba(99,102,241,.4);
     }
-    .sug-info { flex: 1; }
-    .sug-name { font-weight: 600; font-size: .9rem; }
-    .sug-mutual { font-size: .78rem; color: var(--text-muted); }
-    .btn-follow {
+    .profile-page-details { flex: 1; }
+    .profile-page-name { font-weight: 700; font-size: 1.8rem; margin-bottom: 4px; }
+    .profile-page-handle { color: var(--text-muted); font-size: 1rem; margin-bottom: 12px; }
+    .profile-page-bio { color: var(--text-muted); font-size: .95rem; line-height: 1.6; }
+    .profile-page-actions {
+      display: flex; gap: 12px;
+    }
+    .btn-edit-profile {
       background: var(--primary); color: #fff; border: none;
-      border-radius: 999px; padding: 6px 16px; font-size: .82rem;
+      border-radius: 999px; padding: 10px 24px; font-size: .9rem;
       font-weight: 600; cursor: pointer; transition: all .2s;
     }
-    .btn-follow:hover { background: var(--primary-d); transform: translateY(-2px); }
-    .btn-follow.following { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .btn-edit-profile:hover { background: var(--primary-d); transform: translateY(-2px); }
+
+    .profile-page-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+      margin-bottom: 28px;
+    }
+    .profile-stat-card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 16px; text-align: center; border: 1px solid var(--border);
+      transition: all .3s;
+    }
+    .profile-stat-card:hover { border-color: var(--primary); box-shadow: var(--glow); }
+    .profile-stat-card-num { font-weight: 700; font-size: 1.8rem; color: var(--primary); }
+    .profile-stat-card-label { font-size: .85rem; color: var(--text-muted); margin-top: 4px; }
+
+    .profile-posts-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 16px; }
+
+    /* ===== MESSAGES PAGE ===== */
+    .messages-container {
+      display: grid; grid-template-columns: 320px 1fr;
+      gap: 20px; height: calc(100vh - var(--nav-h) - 80px);
+    }
+    @media (max-width: 768px) {
+      .messages-container { grid-template-columns: 1fr; }
+      .messages-list { display: none; }
+      .messages-list.open { display: block; }
+    }
+    .messages-list {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .messages-list-header {
+      padding: 16px; border-bottom: 1px solid var(--border);
+      font-weight: 700; font-size: .95rem;
+    }
+    .message-item {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: all .2s;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .message-item:hover { background: rgba(99,102,241,.1); }
+    .message-item.active { background: rgba(99,102,241,.15); border-left: 3px solid var(--primary); }
+    .message-item-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .95rem; flex-shrink: 0;
+    }
+    .message-item-info { flex: 1; min-width: 0; }
+    .message-item-name { font-weight: 600; font-size: .9rem; }
+    .message-item-preview { font-size: .8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .message-item-time { font-size: .75rem; color: var(--text-muted); }
+
+    .messages-chat {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .messages-chat-header {
+      padding: 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .messages-chat-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .9rem;
+    }
+    .messages-chat-info { flex: 1; }
+    .messages-chat-name { font-weight: 600; font-size: .95rem; }
+    .messages-chat-status { font-size: .75rem; color: var(--text-muted); }
+    .messages-chat-body {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .message-bubble {
+      max-width: 70%; padding: 10px 14px; border-radius: 12px;
+      font-size: .9rem; line-height: 1.5;
+    }
+    .message-bubble.sent {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; align-self: flex-end;
+    }
+    .message-bubble.received {
+      background: rgba(99,102,241,.15); color: var(--text);
+      border: 1px solid rgba(99,102,241,.2); align-self: flex-start;
+    }
+    .messages-chat-input {
+      padding: 16px; border-top: 1px solid var(--border);
+      display: flex; gap: 10px;
+    }
+    .messages-chat-input input {
+      flex: 1; border: 1px solid var(--border); border-radius: 999px;
+      padding: 10px 16px; font-size: .9rem; outline: none; color: var(--text);
+      background: rgba(99,102,241,.05);
+      transition: all .2s;
+    }
+    .messages-chat-input input:focus {
+      border-color: var(--primary);
+      background: rgba(99,102,241,.08);
+      box-shadow: 0 0 12px rgba(99,102,241,.2);
+    }
+    .btn-send-message {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 999px; padding: 10px 20px; font-size: .9rem;
+      font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-send-message:hover { background: var(--primary-d); transform: translateY(-2px); }
+
+    .messages-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: var(--text-muted);
+    }
+    .messages-empty svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: .5; }
+    .messages-empty p { font-size: .95rem; }
 
     /* ===== STORIES ===== */
     .stories-row {
@@ -409,6 +578,45 @@
     }
     .story-modal-close:hover { background: rgba(255,255,255,.2); }
 
+    /* ===== SIDEBAR RIGHT ===== */
+    .sidebar-right { position: sticky; top: calc(var(--nav-h) + 28px); height: fit-content; display: flex; flex-direction: column; gap: 20px; }
+    .widget { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; border: 1px solid var(--border); transition: all .3s; }
+    .widget:hover { border-color: var(--primary); }
+    .widget-title { font-weight: 700; font-size: .98rem; margin-bottom: 16px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .trending-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      transition: all .2s;
+    }
+    .trending-item:hover { padding-left: 4px; }
+    .trending-item:last-child { border-bottom: none; }
+    .trending-rank { font-size: .8rem; color: var(--primary); width: 20px; text-align: center; font-weight: 700; }
+    .trending-info { flex: 1; }
+    .trending-tag { font-weight: 600; font-size: .9rem; color: var(--primary); }
+    .trending-count { font-size: .78rem; color: var(--text-muted); }
+
+    .suggestion {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .suggestion:last-child { border-bottom: none; }
+    .sug-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .95rem;
+      box-shadow: 0 0 8px rgba(99,102,241,.2);
+    }
+    .sug-info { flex: 1; }
+    .sug-name { font-weight: 600; font-size: .9rem; }
+    .sug-mutual { font-size: .78rem; color: var(--text-muted); }
+    .btn-follow {
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 999px; padding: 6px 16px; font-size: .82rem;
+      font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-follow:hover { background: var(--primary-d); transform: translateY(-2px); }
+    .btn-follow.following { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+
     /* ===== TOAST ===== */
     #toast {
       position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(60px);
@@ -426,7 +634,7 @@
 
 <!-- ===== NAVBAR ===== -->
 <nav>
-  <span class="nav-brand">
+  <span class="nav-brand" onclick="switchSection('home')">
     <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
     ConectaMe
   </span>
@@ -439,7 +647,37 @@
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <span class="notif-badge"></span>
     </button>
-    <div class="nav-avatar" onclick="showToast('Perfil de Arthur Sauter')">AS</div>
+    <div class="profile-menu-container">
+      <div class="nav-avatar" onclick="toggleProfileMenu()">AS</div>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-dropdown-header">
+          <div class="profile-dropdown-avatar">AS</div>
+          <div class="profile-dropdown-info">
+            <div class="profile-dropdown-name">Arthur Sauter</div>
+            <div class="profile-dropdown-handle">@arthursauter</div>
+          </div>
+        </div>
+        <div class="profile-dropdown-menu">
+          <button class="profile-dropdown-item" onclick="switchSection('profile'); closeProfileMenu();">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Meu Perfil
+          </button>
+          <button class="profile-dropdown-item" onclick="switchSection('messages'); closeProfileMenu();">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Mensagens
+          </button>
+          <div class="profile-dropdown-divider"></div>
+          <button class="profile-dropdown-item" onclick="showToast('Configurações em breve!'); closeProfileMenu();">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Configurações
+          </button>
+          <button class="profile-dropdown-item" onclick="showToast('Desconectado!'); closeProfileMenu();">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -475,63 +713,123 @@
       </div>
     </div>
     <nav class="side-menu">
-      <a href="#" class="active">
+      <a onclick="switchSection('home')" class="active">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Início
+      </a>
+      <a onclick="switchSection('profile')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Meu Perfil
+      </a>
+      <a onclick="switchSection('messages')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Mensagens
       </a>
       <a href="#" onclick="showToast('Seção Explorar em breve!')">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         Explorar
       </a>
-      <a href="#" onclick="showToast('Mensagens em breve!')">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Mensagens
-      </a>
       <a href="#" onclick="showToast('Seção Salvos em breve!')">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         Salvos
       </a>
-      <a href="#" onclick="showToast('Configurações em breve!')">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Configurações
-      </a>
     </nav>
   </aside>
 
-  <!-- FEED -->
-  <main class="feed" id="feed">
-
-    <!-- Stories -->
-    <div class="stories-row" id="storiesRow">
-      <div class="story story-add">
-        <div class="story-ring"><div class="story-inner">+</div></div>
-        <span class="story-label">Seu story</span>
-      </div>
-    </div>
-
-    <!-- Composer -->
-    <div class="composer">
-      <div class="composer-top">
-        <div class="composer-avatar">AS</div>
-        <textarea id="postInput" placeholder="No que você está pensando, Arthur?"></textarea>
-      </div>
-      <div class="composer-actions">
-        <div class="composer-tools">
-          <button class="tool-btn" title="Emoji" onclick="showToast('Seletor de emoji em breve!')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-          </button>
-          <button class="tool-btn" title="Link" onclick="showToast('Inserir link em breve!')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          </button>
-          <button class="tool-btn" title="Código" onclick="showToast('Inserir código em breve!')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          </button>
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- HOME SECTION -->
+    <div class="content-section active" id="homeSection">
+      <div class="feed" id="feed">
+        <!-- Stories -->
+        <div class="stories-row" id="storiesRow">
+          <div class="story story-add">
+            <div class="story-ring"><div class="story-inner">+</div></div>
+            <span class="story-label">Seu story</span>
+          </div>
         </div>
-        <button class="btn-post" onclick="publishPost()">Publicar</button>
+
+        <!-- Composer -->
+        <div class="composer">
+          <div class="composer-top">
+            <div class="composer-avatar">AS</div>
+            <textarea id="postInput" placeholder="No que você está pensando, Arthur?"></textarea>
+          </div>
+          <div class="composer-actions">
+            <div class="composer-tools">
+              <button class="tool-btn" title="Emoji" onclick="showToast('Seletor de emoji em breve!')">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              </button>
+              <button class="tool-btn" title="Link" onclick="showToast('Inserir link em breve!')">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </button>
+              <button class="tool-btn" title="Código" onclick="showToast('Inserir código em breve!')">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </button>
+            </div>
+            <button class="btn-post" onclick="publishPost()">Publicar</button>
+          </div>
+        </div>
+
+        <!-- Posts serão inseridos aqui via JS -->
       </div>
     </div>
 
-    <!-- Posts serão inseridos aqui via JS -->
+    <!-- PROFILE SECTION -->
+    <div class="content-section" id="profileSection">
+      <div class="profile-page-header">
+        <div class="profile-page-cover"></div>
+        <div class="profile-page-info">
+          <div class="profile-page-pic">AS</div>
+          <div class="profile-page-details">
+            <div class="profile-page-name">Arthur Sauter</div>
+            <div class="profile-page-handle">@arthursauter</div>
+            <div class="profile-page-bio">Desenvolvedor apaixonado por tecnologia, design e inovação. Sempre buscando aprender e compartilhar conhecimento com a comunidade.</div>
+            <div class="profile-page-actions">
+              <button class="btn-edit-profile" onclick="showToast('Editar perfil em breve!')">Editar Perfil</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-page-stats">
+        <div class="profile-stat-card">
+          <div class="profile-stat-card-num" id="profilePostsCount">0</div>
+          <div class="profile-stat-card-label">Posts</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-card-num">248</div>
+          <div class="profile-stat-card-label">Seguidores</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-card-num">131</div>
+          <div class="profile-stat-card-label">Seguindo</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-card-num">42</div>
+          <div class="profile-stat-card-label">Curtidas</div>
+        </div>
+      </div>
+
+      <div class="profile-posts-title">Meus Posts</div>
+      <div id="profilePostsList" class="feed"></div>
+    </div>
+
+    <!-- MESSAGES SECTION -->
+    <div class="content-section" id="messagesSection">
+      <div class="messages-container">
+        <div class="messages-list" id="messagesList">
+          <div class="messages-list-header">Mensagens</div>
+          <div id="messagesListItems"></div>
+        </div>
+        <div class="messages-chat" id="messagesChat">
+          <div class="messages-empty">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <p>Selecione uma conversa para começar</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- SIDEBAR RIGHT -->
@@ -617,12 +915,29 @@
     { name: 'Letícia Nunes', handle: '@leticianunes', initials: 'LN', color: '#14b8a6', mutual: '5 amigos em comum' },
   ];
 
+  const FRIENDS = [
+    { id: 1, name: 'Mariana Costa', initials: 'MC', color: '#8b5cf6', messages: [
+      { sender: 'friend', text: 'Oi! Tudo bem?' },
+      { sender: 'me', text: 'Oi Mariana! Tudo certo, e você?' },
+      { sender: 'friend', text: 'Tudo ótimo! Quer conversar sobre o projeto novo?' },
+    ]},
+    { id: 2, name: 'Rafael Lima', initials: 'RL', color: '#06b6d4', messages: [
+      { sender: 'friend', text: 'Conseguiu terminar aquele código?' },
+      { sender: 'me', text: 'Sim! Já enviei no repositório' },
+    ]},
+    { id: 3, name: 'Juliana Ferraz', initials: 'JF', color: '#f59e0b', messages: [
+      { sender: 'me', text: 'Oi! Como foi a viagem?' },
+      { sender: 'friend', text: 'Maravilhosa! Vou compartilhar as fotos' },
+    ]},
+  ];
+
   /* ============================================================
      ESTADO
   ============================================================ */
   let posts = [];
   let postIdCounter = 0;
   let myPostsCount = 0;
+  let currentChatId = null;
 
   /* ============================================================
      UTILITÁRIOS
@@ -643,6 +958,30 @@
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2800);
   }
+
+  function switchSection(section) {
+    document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+    document.getElementById(section + 'Section').classList.add('active');
+    document.querySelectorAll('.side-menu a').forEach(el => el.classList.remove('active'));
+    event?.target?.classList.add('active');
+    if (section === 'profile') updateProfilePosts();
+    if (section === 'messages') buildMessagesList();
+  }
+
+  function toggleProfileMenu() {
+    const menu = document.getElementById('profileDropdown');
+    menu.classList.toggle('open');
+  }
+
+  function closeProfileMenu() {
+    document.getElementById('profileDropdown').classList.remove('open');
+  }
+
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('profileDropdown');
+    const container = document.querySelector('.profile-menu-container');
+    if (!container.contains(e.target)) menu.classList.remove('open');
+  });
 
   /* ============================================================
      STORIES
@@ -783,6 +1122,21 @@
     return matches ? matches.map(t => t.slice(1)) : [];
   }
 
+  function updateProfilePosts() {
+    const container = document.getElementById('profilePostsList');
+    container.innerHTML = '';
+    const myPosts = posts.filter(p => p.userId === 0);
+    if (myPosts.length === 0) {
+      container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px 20px;">Você ainda não publicou nenhum post.</p>';
+      return;
+    }
+    myPosts.forEach(p => {
+      const el = createPostElement(p);
+      container.appendChild(el);
+    });
+    document.getElementById('profilePostsCount').textContent = myPostsCount;
+  }
+
   /* ============================================================
      INTERAÇÕES
   ============================================================ */
@@ -878,6 +1232,85 @@
     const count = document.getElementById('followingCount');
     count.textContent = parseInt(count.textContent) + (isFollowing ? 1 : -1);
     showToast(isFollowing ? `Você está seguindo ${name}!` : `Você deixou de seguir ${name}.`);
+  }
+
+  /* ============================================================
+     MENSAGENS
+  ============================================================ */
+  function buildMessagesList() {
+    const container = document.getElementById('messagesListItems');
+    container.innerHTML = '';
+    FRIENDS.forEach(friend => {
+      const lastMessage = friend.messages[friend.messages.length - 1];
+      const div = document.createElement('div');
+      div.className = 'message-item' + (currentChatId === friend.id ? ' active' : '');
+      div.innerHTML = `
+        <div class="message-item-avatar" style="background:${friend.color}">${friend.initials}</div>
+        <div class="message-item-info">
+          <div class="message-item-name">${friend.name}</div>
+          <div class="message-item-preview">${lastMessage.text}</div>
+        </div>
+        <div class="message-item-time">Agora</div>`;
+      div.onclick = () => openChat(friend.id);
+      container.appendChild(div);
+    });
+  }
+
+  function openChat(friendId) {
+    currentChatId = friendId;
+    const friend = FRIENDS.find(f => f.id === friendId);
+    const chatContainer = document.getElementById('messagesChat');
+    
+    chatContainer.innerHTML = `
+      <div class="messages-chat-header">
+        <div class="messages-chat-avatar" style="background:${friend.color}">${friend.initials}</div>
+        <div class="messages-chat-info">
+          <div class="messages-chat-name">${friend.name}</div>
+          <div class="messages-chat-status">Online</div>
+        </div>
+      </div>
+      <div class="messages-chat-body" id="chatBody"></div>
+      <div class="messages-chat-input">
+        <input type="text" placeholder="Escreva uma mensagem..." id="messageInput" onkeydown="if(event.key==='Enter') sendMessage(${friendId})" />
+        <button class="btn-send-message" onclick="sendMessage(${friendId})">Enviar</button>
+      </div>`;
+
+    const chatBody = document.getElementById('chatBody');
+    friend.messages.forEach(msg => {
+      const bubble = document.createElement('div');
+      bubble.className = `message-bubble ${msg.sender === 'me' ? 'sent' : 'received'}`;
+      bubble.textContent = msg.text;
+      chatBody.appendChild(bubble);
+    });
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    buildMessagesList();
+  }
+
+  function sendMessage(friendId) {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const friend = FRIENDS.find(f => f.id === friendId);
+    friend.messages.push({ sender: 'me', text });
+
+    const chatBody = document.getElementById('chatBody');
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble sent';
+    bubble.textContent = text;
+    chatBody.appendChild(bubble);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    input.value = '';
+    setTimeout(() => {
+      const reply = document.createElement('div');
+      reply.className = 'message-bubble received';
+      reply.textContent = 'Obrigado pela mensagem! 😊';
+      chatBody.appendChild(reply);
+      friend.messages.push({ sender: 'friend', text: 'Obrigado pela mensagem! 😊' });
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }, 500);
   }
 
   /* ============================================================
