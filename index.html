@@ -1468,19 +1468,43 @@
   ];
 
   const FRIENDS = [
-    { id: 1, name: 'Mariana Costa', initials: 'MC', color: '#8b5cf6', messages: [
-      { sender: 'friend', text: 'Oi! Tudo bem?' },
-      { sender: 'me', text: 'Oi Mariana! Tudo certo, e você?' },
-      { sender: 'friend', text: 'Tudo ótimo! Quer conversar sobre o projeto novo?' },
-    ]},
-    { id: 2, name: 'Rafael Lima', initials: 'RL', color: '#06b6d4', messages: [
-      { sender: 'friend', text: 'Conseguiu terminar aquele código?' },
-      { sender: 'me', text: 'Sim! Já enviei no repositório' },
-    ]},
-    { id: 3, name: 'Juliana Ferraz', initials: 'JF', color: '#f59e0b', messages: [
-      { sender: 'me', text: 'Oi! Como foi a viagem?' },
-      { sender: 'friend', text: 'Maravilhosa! Vou compartilhar as fotos' },
-    ]},
+    { 
+      id: 1, 
+      name: 'Mariana Costa', 
+      initials: 'MC', 
+      color: '#8b5cf6',
+      personality: 'Mariana é uma pessoa criativa, entusiasmada e sempre interessada em projetos novos. Ela é amigável, gosta de compartilhar ideias e é muito positiva.',
+      interests: ['design', 'projetos', 'inovação', 'criatividade'],
+      messages: [
+        { sender: 'friend', text: 'Oi! Tudo bem?' },
+        { sender: 'me', text: 'Oi Mariana! Tudo certo, e você?' },
+        { sender: 'friend', text: 'Tudo ótimo! Quer conversar sobre o projeto novo?' },
+      ]
+    },
+    { 
+      id: 2, 
+      name: 'Rafael Lima', 
+      initials: 'RL', 
+      color: '#06b6d4',
+      personality: 'Rafael é um desenvolvedor focado, técnico e sempre prático. Ele é direto, eficiente e gosta de resolver problemas.',
+      interests: ['programação', 'código', 'tecnologia', 'desenvolvimento'],
+      messages: [
+        { sender: 'friend', text: 'Conseguiu terminar aquele código?' },
+        { sender: 'me', text: 'Sim! Já enviei no repositório' },
+      ]
+    },
+    { 
+      id: 3, 
+      name: 'Juliana Ferraz', 
+      initials: 'JF', 
+      color: '#f59e0b',
+      personality: 'Juliana é aventureira, alegre e adora compartilhar experiências. Ela é carismática, inspiradora e sempre tem histórias interessantes.',
+      interests: ['viagens', 'aventura', 'experiências', 'natureza'],
+      messages: [
+        { sender: 'me', text: 'Oi! Como foi a viagem?' },
+        { sender: 'friend', text: 'Maravilhosa! Vou compartilhar as fotos' },
+      ]
+    },
   ];
 
   /* ============================================================
@@ -1920,7 +1944,7 @@
     buildMessagesList();
   }
 
-  function sendMessage(friendId) {
+  async function sendMessage(friendId) {
     const input = document.getElementById('messageInput');
     const text = input.value.trim();
     if (!text) return;
@@ -1936,14 +1960,26 @@
     chatBody.scrollTop = chatBody.scrollHeight;
 
     input.value = '';
-    setTimeout(() => {
+    
+    // Mostrar indicador de digitação
+    const typingBubble = document.createElement('div');
+    typingBubble.className = 'message-bubble received typing';
+    typingBubble.innerHTML = '<span></span><span></span><span></span>';
+    chatBody.appendChild(typingBubble);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    // Gerar resposta com IA
+    setTimeout(async () => {
+      const aiResponse = await generateAIResponse(friendId, text);
+      typingBubble.remove();
+      
       const reply = document.createElement('div');
       reply.className = 'message-bubble received';
-      reply.textContent = 'Obrigado pela mensagem! 😊';
+      reply.textContent = aiResponse;
       chatBody.appendChild(reply);
-      friend.messages.push({ sender: 'friend', text: 'Obrigado pela mensagem! 😊' });
+      friend.messages.push({ sender: 'friend', text: aiResponse });
       chatBody.scrollTop = chatBody.scrollHeight;
-    }, 500);
+    }, 800);
   }
 
   /* ============================================================
